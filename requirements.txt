@@ -1,0 +1,7 @@
+langchain
+langchain-community
+langchain_ollama
+chromadb
+pypdf
+beautifulsoup4
+pandas
