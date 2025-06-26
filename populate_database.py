@@ -30,8 +30,8 @@ def load_documents():
 # Split document into chunks so that its easily stored
 def split_documents(documents: list[Document]):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size = 800,
-        chunk_overlap = 80,
+        chunk_size = 1200,
+        chunk_overlap = 100,
         length_function = len,
         is_separator_regex = False,
     )
@@ -39,8 +39,8 @@ def split_documents(documents: list[Document]):
 
 def split_documents_audit(documents: list[Document]):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=50,
+        chunk_size=1200,
+        chunk_overlap=100,
         separators=["</custom_item>", "</item>", "\n\n", "\n"],
     )
     return text_splitter.split_documents(documents)
@@ -69,7 +69,13 @@ def add_to_chroma(chunks: list[Document]):
     if len(new_chunks):
         print(f"👉 Adding new documents: {len(new_chunks)}")
         new_chunk_ids = [chunk.metadata["id"] for chunk in new_chunks] # Adding IDs with the chunks
-        db.add_documents(new_chunks, ids=new_chunk_ids)
+        for i in range(0, len(new_chunks), 100):
+            batch = new_chunks[i:i+100]
+            batch_ids = new_chunk_ids[i:i+100]
+            db.add_documents(batch, ids=batch_ids)
+            print(f"batch:{i} added")
+
+        # db.add_documents(new_chunks, ids=new_chunk_ids)
         db.persist()
     else:
         print("✅ No new documents to add")
@@ -110,7 +116,7 @@ def main():
     
     # Combine all chunks
     all_chunks = chunks_pdf + chunks_audit
-    
+
     # Add combined chunks to chromaDB
     add_to_chroma(all_chunks)
 

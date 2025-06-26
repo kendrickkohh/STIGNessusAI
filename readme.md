@@ -23,3 +23,7 @@ This project leverages Retrieval-Augmented Generation (RAG) with vector embeddin
 ### Installation
 ```bash
 pip install -r requirements.txt
+```
+
+## Acknowledgements
+- Created by: Koh Yihao Kendrick
