@@ -1,7 +1,7 @@
 from langchain.vectorstores.chroma import Chroma
 from get_embedding import get_embedding
 from langchain.schema.document import Document
-from langchain_community.document_loaders import PyPDFDirectoryLoader
+from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import os
@@ -21,9 +21,15 @@ def load_audit_files(audit_dir):
 
 # Load PDFs into docs variable
 def load_documents():
-    pdf_docs = PyPDFDirectoryLoader(path="data").load()
-    for doc in pdf_docs:
-        doc.metadata["source_type"] = "documentation"
+    pdf_docs = []
+    for fname in os.listdir("data"):
+        if fname.endswith(".pdf"):
+            loader = PyMuPDFLoader(os.path.join("data", fname))
+            docs = loader.load()
+            for doc in docs:
+                doc.metadata["source_type"] = "documentation"
+            pdf_docs.extend(docs)
+
     audit_docs = load_audit_files("audit_examples")
     return pdf_docs, audit_docs
 
@@ -37,11 +43,14 @@ def split_documents(documents: list[Document]):
     )
     return text_splitter.split_documents(documents)
 
+def split_documents_by_page(documents: list[Document]):
+    return documents
+
 def split_documents_audit(documents: list[Document]):
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=1200,
-        chunk_overlap=100,
-        separators=["</custom_item>", "</item>", "\n\n", "\n"],
+        chunk_size=1000000,  # Disable chunk size
+        chunk_overlap=0,
+        separators=["  </custom_item>"],  # only split on end of custom items
     )
     return text_splitter.split_documents(documents)
 
@@ -70,6 +79,8 @@ def add_to_chroma(chunks: list[Document]):
         print(f"👉 Adding new documents: {len(new_chunks)}")
         new_chunk_ids = [chunk.metadata["id"] for chunk in new_chunks] # Adding IDs with the chunks
         for i in range(0, len(new_chunks), 100):
+            print(new_chunks[i])
+            
             batch = new_chunks[i:i+100]
             batch_ids = new_chunk_ids[i:i+100]
             db.add_documents(batch, ids=batch_ids)
@@ -111,13 +122,15 @@ def main():
     pdf_docs, audit_docs = load_documents()
     
     # Split PDFs with standard splitter and audit files with audit splitter
-    chunks_pdf = split_documents(pdf_docs)
+    # chunks_pdf = split_documents(pdf_docs)
+    chunks_pdf = split_documents_by_page(pdf_docs)
+
     chunks_audit = split_documents_audit(audit_docs)
     
     # Combine all chunks
-    all_chunks = chunks_pdf + chunks_audit
+    # all_chunks = chunks_pdf + chunks_audit
 
     # Add combined chunks to chromaDB
-    add_to_chroma(all_chunks)
+    add_to_chroma(chunks_pdf)
 
 main()

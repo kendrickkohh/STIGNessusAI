@@ -2,6 +2,6 @@ langchain
 langchain-community
 langchain_ollama
 chromadb
-pypdf
+pymupdf
 beautifulsoup4
 pandas

@@ -1,0 +1,946 @@
+#TRUSTED 92a2145741e9620e6830524ada674b82791b691e1a1a1cc925aa24999f57a07eeb598dda4b028b69dbb1e35041e72053dea8bd585f5930c85b73aaebe3d05a77fbbaa1376974b9ed40c66b18a79eb9fcb511e427dc87a4c9f2ab47f8a108b5e34a3bb79f7254d869d01b1f7735933d0611dcbb77a1785e8252f3a75c2de1dab2600a2b26ff4b9fcd418f6a57013acfdae0560622571cb9e2674a5f6830dc65cb58ce634bc51dac2734a66f7a0f5d76be968a4725a65c68d2292291fb22f7d21fe1883846c70273324a6e74c670cd93aee77f4694af8618ce0619ea0b8004914fc99ed1b74c2bed698a4fc1891f9e6898883a0b3fb2e2f00a6522e9ac5b38ac473dc0d6b9a69eff1e08e87c18537f57037fcc4b0e0934ab59c42226057d43afc6fd8fd6a9e930c606b825a432a1cfeeaa9f441b3ebedbc950375bba8fcbc865551b8c42da2907d398cc95099d69b24c195318cfa2f05c7d1935dbe51e45f40044d5e6c24ad8e22c71c79767f5d7c11a8aad7d40de874fcd54b627236d0450380d0047e4fe483a701fbec066c3f011acd052c94290729f16f2c55fa528e24c7f190b728f40ca698bb3c6a5203702edbc7d6babe6ee7aa000b31163ba9456bcb9c4d130a097388c62cb40262e1fe4054c81d02f7605d8730a320411bc199295c8dd747eb513c1f67406d9f68d5886998b0df88547edc100d7a6b019e9636180c19b
+#TRUST-RSA-SHA256 63f56b482c47c87571ac670911490cbe83a17f966e3f4b8d54852a26ddbc2173f58a80d5f35bf846f6313514fe366d3f56b47de52ff4c694db4244b72f9c5dbf040298d4e8e38243d4a5b256bb8ca199339da0b74dfc011a1b74131a2117f2cd0a27855f04b2b426b7383b73d02a1d6ffecb986e63fd917d81c17cc0a6014766720e8e7758ce3f514262b0b8aa5f7cd5375304d494bf10c83aa4fac6c75a14df18802a9ae23bd867af3715aa50ec52c02506f72e34bba9097c0ae4246d23bba2bbfcaf137f1006158933ef45f444ca33bce40f8b9eaa8b54c6509589504af6e5fda1849403f88416605b7e4f4bbc500dbcda61e5338be4083d925b18583f7c4be541ba6693ad148690c4e7c634c66b596c588c9cf766184120db40a96d36f14194b70e2524b6ba83500e823db90083c113d8880bebba4bb2d3b59360e932b2238e9294ce8fb790c0aae7195c38082f7546747acff2d28703232765590e3fbf66692c7845d80e59542d55dab32811b420d3df7acd841e26b6dab2e4b87d71efdfb74e8317ac1eb0180d2af89250f866ca3824e91809ab6df79e79aff28c1ece7845872018f0e6a4d05acdd8add4467fa6ebcae271bd94982554e50a144af72062f8d15eb099eb32b460c82889cce7564ae68d1169ee47dd6916e6b13a5024be02ffa06366c98fea9cd7157046cce2e47c267693bb997c99afa874e0b668bf674d
+#
+# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
+#
+# This script is released under the Tenable Subscription License and
+# may not be used from within scripts released under another license
+# without authorization from Tenable, Inc.
+#
+# See the following licenses for details:
+#
+# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
+#
+# @PROFESSIONALFEED@
+# $Revision: 1.6 $
+# $Date: 2025/03/31 $
+#
+# description : This .audit is designed against the CIS Ubuntu Linux 24.04 LTS Benchmark 1.0.0
+#
+#<ui_metadata>
+#<display_name>CIS Ubuntu Linux 24.04 LTS v1.0.0 L1 Server</display_name>
+#<spec>
+#  <type>CIS</type>
+#  <name>Ubuntu Linux 24.04 LTS</name>
+#  <profile>L1 Server</profile>
+#  <version>1.0.0</version>
+#  <link>https://workbench.cisecurity.org/benchmarks/18959</link>
+#</spec>
+#<labels>cis,ubuntu_linux_24.04,agent</labels>
+#<benchmark_refs>CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
+#</ui_metadata>
+
+<check_type:"Unix">
+  <custom_item>
+    description : "MQMH-AS-000010: MQ Appliance must enable AUTHOREV event logging for non-repudiation"
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F '[()]' '/QMNAME/ {print $2}' | while read qmgr; do mqcli -c \"echo 'DIS QMGR EVENT' | runmqsc $qmgr\"; done"
+    regex       : "AUTHOREV\\(ENABLED\\)"
+    solution    :
+    "To access the MQ Appliance CLI, enter:
+    mqcli
+
+    runmqsc [queue mgr name]
+    ALTER QMGR [AUTHOREV](ENABLED)
+
+    To exit the MQ Appliance CLI, enter:
+    end"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000020: The MQ Appliance messaging server must implement cryptography mechanisms to protect the integrity of the remote access session."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F '[()]' '/QMNAME/ {print $2}' | xargs -I {} mqcli -c \"echo 'DIS POLICY(*)' | runmqsc {}\""
+    regex       : "POLICY\\([^)]+\\)"
+    solution    : 
+    "Advanced Message Security can sign and encrypt messages at the point of production, and then decrypt and authenticate 	them at the point of consumption. At all points in between, the message is protected, either for integrity (using hashing) or 	for privacy (using encryption).  Steps for setting up AMS are not included here.  Reference vendor documentation for guidance 	on setting up AMS.  
+    To access the MQ Appliance CLI, enter:
+    mqcli
+
+    runmqsc [QMgrName]
+
+    SET POLICY([queue name]) SIGNALG([SHA256, SHA384, or SHA512]) +
+    ENCALG([3DES, AES128, or AES256]) +
+    RECIP(['distinguished name (DN) of the message recipient']) +
+    SIGNER(['Signature DN validated during message retrieval'])
+    end"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000150: The MQ Appliance messaging server must off-load log records onto a different system or media from the system being logged."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq -s -o ha'"
+    regex       : "primary|secondary"
+    solution    : 
+    "To configure HA:
+    1. Use three Ethernet cables to directly connect two appliances together using ports eth1, eth2, and eth3.
+    2. Configure the three connected MQ Appliance ports (on both appliances) as follows:
+
+    Interface      Purpose                            IP address/CIDR
+    eth1           HA group primary interface         x.x.x.x/24
+    eth2           HA group alternative interface     x.x.x.x/24
+    eth3           HA Replication interface           x.x.x.x/24
+
+    On the second appliance, enter the following command from the MQ Appliance CLI:
+    prepareha -s [SecretText] -a [eth 1 IPAddress of first appliance] [-t timeout]
+
+    On the first appliance, enter the following command from the MQ Appliance CLI:
+    crthagrp -s [SecretText] -a [eth 1 IPAddress of second appliance]
+    crtmqm [HA QM name] –p [port] –sx
+
+    Note: The queue manager’s data (queues, queue messages, etc.) is replicated from the appliance in the primary HA role (first 	appliance) to the appliance in the secondary HA role (second appliance)."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000160: The MQ Appliance messaging server must synchronize internal MQ Appliance messaging server clocks to an authoritative time source when the time difference is greater than the organization-defined time period."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'show ntp status' | grep -i 'refresh interval'"
+    expect      : "600"
+    solution    : 
+    "Log on as a privileged user to the WebGUI.
+    Select the  Network icon.
+    Interface NTP Service.
+
+    Set refresh interval to "600" seconds.
+
+    Click "Save configuration"."
+    severity    : LOW
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000170: The MQ Appliance messaging server must compare internal MQ Appliance messaging server clocks at least every 24 hours with an authoritative time source."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'show ntp status'"
+    regex       : "Server|Enable Administrative state: true"
+    solution    : 
+    "Log on as a privileged user to the WebGUI.
+    Select the  Network icon.
+    Interface NTP Service.
+
+    Ensure the box next to "Enable Administrative state" has a check mark.
+    Press the "Add" button to add multiple NTP servers.
+    Click the "Apply" button.
+
+    Add one or more additional NTP servers at least one of which is from a different geographic region.
+
+    Click "Save configuration"."
+    severity    : LOW
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000180: The MQ Appliance messaging server must implement NSA-approved cryptography to protect classified information in accordance with applicable federal laws, Executive Orders, directives, policies, regulations, and standards."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F '[()]' '/QMNAME/ {print $2}' | xargs -I {} mqcli -c \"DISPLAY CHSTATUS(*) STATUS(RUNNING) SSLPEER SSLCERTI | runmqsc {}\""
+    regex       : "SSLPEER\(\".*\"\).*SSLCERTI\(\".*\"\)"
+    solution    : 
+    "Devices (endpoints) may connect an MQ Appliance MQ queue manager as either remote MQ queue manager or MQ client. In order to ensure unique identification of network-connected devices, mutual authentication using CA-signed TLS certificates should be configured. 
+
+    1. Prepare the key repository on each endpoint (client and/or queue manager).
+    2. Request a CA-signed certificate for each client and/or queue manager. You might use different CAs for the two endpoints.
+    3. Add the Certificate Authority certificate to the key repository for each client and/or queue manager. If the endpoints are using different Certificate Authorities then the CA certificate for each Certificate Authority must be added to both key repositories.
+    4. Add the CA-signed certificate to the key repository for each endpoint.
+
+    CHOOSE EITHER STEP 5 or 6 BELOW
+
+    5. For a queue manager to queue manager connection:
+    a. On [QM1], define a sender channel and associated transmission queue by issuing commands like the following example:
+    DEFINE QLOCAL([QM2]) USAGE(XMITQ)
+    DEFINE CHANNEL(TO.[QM2]) CHLTYPE(SDR) TRPTYPE(TCP) +
+    CONNAME([QM2 address]) XMITQ([QM2]) SSLCIPH([TLS cipher spec]) +
+    DESCR('Sender channel using TLS from [QM1] to [QM2]')
+    The CipherSpecs at each end of the channel must be the same.
+
+    b. On [QM2], define a receiver channel by issuing a command like the following example:
+    DEFINE CHANNEL(TO.[QM2]) CHLTYPE(RCVR) TRPTYPE(TCP) +
+    SSLCIPH([TLS cipher spec]) SSLCAUTH(REQUIRED) +
+    DESCR('Receiver channel using TLS to [QM2]')
+    The channel must have the same name as the sender channel you defined in step 5.a., and use the same CipherSpec.
+
+    c. Start the channel.
+    Ref. Connecting two queue managers using SSL or TLS  https://goo.gl/1GyPRV
+
+    6. For a client to queue manager connection:
+    a. Define a client-connection channel in either of the following ways:
+    - Using the MQCONNX call with the MQSCO structure on [client]
+    - Using a client channel definition table
+
+    b. On queue manager, define a server-connection channel by issuing a command like the following example:
+    C1=client 1, MQ1=queue manager 1
+    DEFINE CHANNEL([C1].TO.[QM1]) CHLTYPE(SVRCONN) TRPTYPE(TCP) +
+    SSLCIPH(TLS_RSA_WITH_AES_128_CBC_SHA) SSLCAUTH(REQUIRED) +
+    DESCR('Receiver channel using TLS from [client name] to [QM name]')
+
+    The channel must have the same name as the client-connection channel you defined in step 6, and use the same CipherSpec.
+
+    Note: Following are the cipher specs available for MQ: https://ibm.biz/BdrJGp"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000190 - The MQ Appliance WebGUI interface to the messaging server must prohibit the use of cached authenticators after one hour."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'co; show web-mgmt' | grep -i 'ssl-server' | awk '{print $2}' | xargs -I {} mqcli -c 'crypto; ssl-server {}; show'"
+    regex       : "caching on.*cache-timeout 3600"
+    solution    : 
+    "Display the SSL Server Profile associated with the WebGUI (CLI).
+    Enter:
+    co
+    show web-mgmt
+
+    [Note the name of the ssl-server]
+
+    Define the cache parameters of the SSL Server using the CLI.
+    Enter:
+    co
+    crypto
+    ssl-server <ssl-server name>
+    caching on
+    cache-timeout <3600>
+    exit
+    exit
+    write mem
+    y"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000210: The MQ Appliance messaging server must produce log records containing information to establish what type of events occurred."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F '[()]' '/QMNAME/ {print $2}' | xargs -I {} mqcli -c \"echo 'DIS QMGR EVENT' | runmqsc {}\""
+    regex       : "AUTHOREV\(ENABLED\).*INHIBITEV\(ENABLED\).*STRSTPEV\(ENABLED\).*CMDEV\(ENABLED\).*SSLEV\(ENABLED\).*CONFIGEV\(ENABLED\).*PERFMEV\(ENABLED\)"
+    solution    : 
+    "Ensure each queue is configured to log the following event names:
+
+    AUTHOREV
+    INHIBITEV
+    STRSTPEV
+    CMDEV
+    SSLEV
+    CONFIGEV
+    PERFMEV
+
+    Use the "runmqsc" command for each queue manager.
+
+    runmqsc [queue mgr name]
+    ALTER QMGR [event name](ENABLED)
+
+    Enter "end" to exit the MQ Appliance CLI."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000450: The MQ Appliance messaging server must identify potentially security-relevant error conditions."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk '{print $1}' | xargs {} mqcli -c ''"
+    regex       : "AUTHOREV\(ENABLED\)"
+    solution    : 
+    "For each queue manager on the MQ Appliance, enable authority (AUTHOREV) event logging.
+
+    From the MQ Appliance CLI, enter the following:
+
+    runmqsc [queue mgr name]
+    ALTER QMGR AUTHOREV(ENABLED)
+    end"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000480: The MQ Appliance messaging server must provide access logging that ensures users who are granted a privileged role (or roles) have their privileged activity logged."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F '[()]' '/QMNAME/ {print $2}' | xargs -I {} mqcli -c \"echo 'DIS QMGR CONFIGEV' | runmqsc {}\""
+    regex       : "CONFIGEV\(ENABLED\)"
+    solution    : 
+    "For each queue manager on the MQ Appliance, enable configuration event logging (CONFIGEV).
+
+    From the MQ Appliance CLI, enter the following:
+
+    runmqsc [queue mgr name]
+    ALTER QMGR CONFIGEV(ENABLED)
+    end"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000610: The MQ Appliance messaging server must alert the SA and ISSO, at a minimum, in the event of a log processing failure."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F '[()]' '/QMNAME/ {print $2}' | xargs -I {} mqcli -c \"echo 'DIS QMGR PERFMEV; DIS QLOCAL(SYSTEM.ADMIN.PERFM.EVENT) QDPHIEV' | runmqsc {}\""
+    regex       : "PERFMEV(ENABLED).*QDPHIEV(ENABLED)"
+    solution    : 
+    "For each queue manager on the MQ Appliance, enable performance (PERFMEV) event logging.
+
+    From the MQ Appliance CLI, enter the following:
+
+    runmqsc [queue mgr name]
+    ALTER QMGR PERFMEV(ENABLED)
+    ALTER QLOCAL(SYSTEM.ADMIN.PERFM.EVENT) QDPHIEV(ENABLED)
+
+    Monitor the logs that send alerts based on the following failure codes: 
+    MQRC_Q_FULL, MQRC_Q_MGR_NOT_ACTIVE, MQRC_Q_DEPTH_HIGH."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000640: The MQ Appliance messaging server must provide an immediate warning to the SA and ISSO, at a minimum, when allocated log record storage volume reaches 75% of maximum log record storage capacity."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F '[()]' '/QMNAME/ {print \$2}' | xargs -I {} mqcli -c \"echo 'DIS QLOCAL(SYSTEM.ADMIN.PERFM.EVENT)' | runmqsc {}\""
+    regex       : "QDEPTHHI\\(75\\)"
+    solution    : 
+    "For each queue manager on the MQ Appliance, enable performance (PERFMEV) event logging.
+
+    From the MQ Appliance CLI, enter the following:
+
+    runmqsc [queue mgr name]
+    ALTER QMGR PERFMEV(ENABLED)
+    ALTER QLOCAL(SYSTEM.ADMIN.PERFM.EVENT) QDPHIEV(ENABLED)
+    ALTER QLOCAL(SYSTEM.ADMIN.PERFM.EVENT) QDEPTHHI(75)
+
+    Monitor the logs and send alerts based on the following failure codes: 
+    MQRC_Q_FULL, MQRC_Q_MGR_NOT_ACTIVE, MQRC_Q_DEPTH_HIGH."
+    severity    : MEDIUM
+  </custom_item>
+# MAXINST(5000) and MAXINST(1000)
+  <custom_item>
+    description : "MQMH-AS-000650: The MQ Appliance messaging server must protect against or limit the effects of all types of Denial of Service (DoS) attacks by employing operationally-defined security safeguards."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F \"[()]\" '/QMNAME/ {print \$2}' | while read qmgr; do mqcli -c \"echo 'DIS CHANNEL(*) CHLTYPE(SVRCONN)' | runmqsc \$qmgr\" | awk '/CHANNEL\\(/ {gsub(/[()]/,\"\",\$2); print \$2}' | while read chl; do mqcli -c \"echo 'DIS CHANNEL(\$chl)' | runmqsc \$qmgr\"; done; done"
+    regex       : "MAXINST\\(5000\\).*MAXINSTC\\(1000\\)"
+    solution    :
+    "For each queue manager's server connection (SVRCONN) channel(s):
+
+    To access the MQ Appliance CLI, enter:
+    mqcli
+
+    runmqsc <queue manager name> >>
+
+    To display available SVRCONN channels, enter:
+    DIS CHANNEL(*) CHLTYPE(SVRCONN)
+
+    ALTER CHANNEL(<svrconn channel name>) CHLTYPE(SVRCONN) 
+    MAXINST(5000)
+    MAXINSTC(1000)
+    end"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000680: The MQ Appliance messaging server must automatically terminate a SSH user session after organization-defined conditions or trigger events requiring a session disconnect."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'show rbm'"
+    # Expect <600
+    regex      : "cli-timeout\\s*:\\s*(?:[1-9]$|[1-9][0-9]$|[1-5][0-9]{2}$|600$)"
+    solution    :
+    "For the CLI used by the administrator, log on to the MQ Appliance CLI as a privileged user.
+
+    Enter:
+    co
+    rbm
+    cli-timeout 600
+    exit
+    write mem
+    y"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000720: The MQ Appliance must automatically terminate a WebGUI user session after 600 seconds of idle time."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'co web-mgmt show'"
+    regex       : "idle-timeout\\s*:\\s*(?:[1-9]|[1-9][0-9]|[1-5][0-9]{2}|600)"
+    solution    :
+    "Log on to the MQ Appliance CLI as a privileged user.
+
+    To access the MQ Appliance CLI, enter:
+    mqcli
+
+    To enter configuration mode, enter:
+    co
+    web-mgmt
+    idle-timeout <600 seconds or less>
+    exit
+    write mem
+    y"
+    severity    : MEDIUM
+  </custom_item>
+
+  # Needs WebGUI
+  <custom_item>
+    description : "MQMH-AS-000730: The MQ Appliance SSH interface to the messaging server must prohibit the use of cached authenticators after 600 seconds."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'rbm; show'"
+    regex       : "cache-timeout\\s+600"
+    solution    :
+    "In the MQ Appliance WebGUI, Go to Administration (gear icon) >> Access >> RBM Settings.
+    Limit cache settings to "600" seconds."
+    severity    : MEDIUM
+  </custom_item>
+
+  # ===== MQMH-AS-000870 =====
+  <custom_item>
+    description : "MQMH-AS-000870: The MQ Appliance messaging server must provide a log reduction capability that supports on-demand reporting requirements."
+    type        : CMD_EXEC
+    cmd         : "amqsevt -m QMGR_NAME -q SYSTEM.ADMIN.QMGR.EVENT -c -u testuser"
+    regex       : ".*Event Type.*"
+    solution    : 
+    "Log record aggregation and reporting for each event-logging-enabled queue manager on the MQ Appliance may be accomplished by running the following command from an authorized MQ client device:
+
+    amqsevt -m [queue mgr name] {-q SYSTEM.ADMIN.QMGR.EVENT | -q SYSTEM.ADMIN.CONFIG.EVENT | -q SYSTEM.ADMIN.PERFM.EVENT | -q SYSTEM.ADMIN.CHANNEL.EVENT | -q SYSTEM.ADMIN.COMMAND.EVENT} -c -u [user name]
+
+    Note: Any MQ monitoring solution that can connect to MQ as a client may be used to monitor event queues."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000870: The MQ Appliance messaging server must provide a log reduction capability that supports on-demand reporting requirements."
+    type        : CMD_EXEC
+    cmd         : "amqsevt -m QMGR_NAME -q SYSTEM.ADMIN.CONFIG.EVENT -c -u testuser"
+    regex       : ".*Event Type.*"
+    solution    : 
+    "Log record aggregation and reporting for each event-logging-enabled queue manager on the MQ Appliance may be accomplished by running the following command from an authorized MQ client device:
+
+    amqsevt -m [queue mgr name] {-q SYSTEM.ADMIN.QMGR.EVENT | -q SYSTEM.ADMIN.CONFIG.EVENT | -q SYSTEM.ADMIN.PERFM.EVENT | -q SYSTEM.ADMIN.CHANNEL.EVENT | -q SYSTEM.ADMIN.COMMAND.EVENT} -c -u [user name]
+
+    Note: Any MQ monitoring solution that can connect to MQ as a client may be used to monitor event queues."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000870: The MQ Appliance messaging server must provide a log reduction capability that supports on-demand reporting requirements."
+    type        : CMD_EXEC
+    cmd         : "amqsevt -m QMGR_NAME -q SYSTEM.ADMIN.PERFM.EVENT -c -u testuser"
+    regex       : ".*Event Type.*"
+    solution    : 
+    "Log record aggregation and reporting for each event-logging-enabled queue manager on the MQ Appliance may be accomplished by running the following command from an authorized MQ client device:
+
+    amqsevt -m [queue mgr name] {-q SYSTEM.ADMIN.QMGR.EVENT | -q SYSTEM.ADMIN.CONFIG.EVENT | -q SYSTEM.ADMIN.PERFM.EVENT | -q SYSTEM.ADMIN.CHANNEL.EVENT | -q SYSTEM.ADMIN.COMMAND.EVENT} -c -u [user name]
+
+    Note: Any MQ monitoring solution that can connect to MQ as a client may be used to monitor event queues."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000870: The MQ Appliance messaging server must provide a log reduction capability that supports on-demand reporting requirements."
+    type        : CMD_EXEC
+    cmd         : "amqsevt -m QMGR_NAME -q SYSTEM.ADMIN.CHANNEL.EVENT -c -u testuser"
+    regex       : ".*Event Type.*"
+    solution    : 
+    "Log record aggregation and reporting for each event-logging-enabled queue manager on the MQ Appliance may be accomplished by running the following command from an authorized MQ client device:
+
+    amqsevt -m [queue mgr name] {-q SYSTEM.ADMIN.QMGR.EVENT | -q SYSTEM.ADMIN.CONFIG.EVENT | -q SYSTEM.ADMIN.PERFM.EVENT | -q SYSTEM.ADMIN.CHANNEL.EVENT | -q SYSTEM.ADMIN.COMMAND.EVENT} -c -u [user name]
+
+    Note: Any MQ monitoring solution that can connect to MQ as a client may be used to monitor event queues."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-000870: The MQ Appliance messaging server must provide a log reduction capability that supports on-demand reporting requirements."
+    type        : CMD_EXEC
+    cmd         : "amqsevt -m QMGR_NAME -q SYSTEM.ADMIN.COMMAND.EVENT -c -u testuser"
+    regex       : ".*Event Type.*"
+    solution    : 
+    "Log record aggregation and reporting for each event-logging-enabled queue manager on the MQ Appliance may be accomplished by running the following command from an authorized MQ client device:
+
+    amqsevt -m [queue mgr name] {-q SYSTEM.ADMIN.QMGR.EVENT | -q SYSTEM.ADMIN.CONFIG.EVENT | -q SYSTEM.ADMIN.PERFM.EVENT | -q SYSTEM.ADMIN.CHANNEL.EVENT | -q SYSTEM.ADMIN.COMMAND.EVENT} -c -u [user name]
+
+    Note: Any MQ monitoring solution that can connect to MQ as a client may be used to monitor event queues."
+    severity    : MEDIUM
+  </custom_item>
+  # ===== MQMH-AS-000870 =====
+
+  <custom_item>
+    description : "MQMH-AS-000900: The MQ Appliance messaging server must be configured to fail over to another system in the event of log subsystem failure."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq -s -o ha'"
+    regex       : "HA\\(Replicated\\)"
+    solution    :
+    "Rudimentary instructions for setting up HA are included here. 
+
+    1. Use three Ethernet cables to directly connect two appliances together using ports eth1, eth2, and eth3.
+    2. Configure the three connected MQ Appliance ports (on both appliances) as follows:
+
+    Interface Purpose IP address/CIDR
+    eth1 HA group primary interface x.x.x.x/24
+    eth2 HA group alternative interface x.x.x.x/24
+    eth3 HA Replication interface x.x.x.x/24
+
+    On the second appliance, enter the following command from the MQ Appliance CLI:
+    prepareha -s [SecretText] -a [eth 1 IPAddress of first appliance] [-t timeout]
+
+    On the first appliance, enter the following command:
+    crthagrp -s [SecretText] -a [eth 1 IPAddress of second appliance]
+
+    On the first appliance, stop the first queue manager to be HA enabled:
+    endmqm [name of queue manager]
+
+    Set an HA group:
+    sethagrp -i [name of queue manager]
+
+    Note: The queue manager’s data (queues, queue messages, etc.) are replicated from the appliance in the primary HA role (first appliance) to the appliance in the secondary HA role (second appliance)."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001000: The MQ Appliance messaging server must uniquely identify all network-connected endpoint devices before establishing any connection."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F \"[()]\" \"/QMNAME/ {print \$2}\" | while read qmgr; do mqcli -c \"echo 'DIS CHANNEL(*) CHLTYPE(SVRCONN)' | runmqsc \$qmgr\" | awk '/CHANNEL\\(/ {print \$2}' | while read chan; do mqcli -c \"echo \\\"DIS CHANNEL(\$chan)\\\" | runmqsc \$qmgr\"; done; done"
+    regex       : "SSLAUTH\\(REQUIRED\\).*SSLCIPH\\((?!NULL|NONE)[^)]+\\)"
+    solution    :
+    "Run the fix for each affected queue manager and each affected channel. 
+
+    To access the MQ Appliance enter:
+    mqcli
+    runmqsc [queue name]
+
+    ALTER CHANNEL([channel name] CHLTYPE(SVRCONN) TRPTYPE(TCP) 
+    SSLCIPH([Use FIPS Approved cipher specs only]) SSLCAUTH(REQUIRED)
+
+    Enter "end" to exit runmqsc mode."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001010: Access to the MQ Appliance messaging server must utilize encryption when using LDAP for authentication."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F '[()]' '/QMNAME/ {print $2}' | while read qmgr; do \
+                  mqcli -c \"echo 'DIS QMGR CONNAUTH' | runmqsc $qmgr\" | awk '/CONNAUTH\\(/ {gsub(/[()]/, \"\", $2); print $2}' | while read auth; do \
+                  mqcli -c \"echo 'DIS AUTHINFO('\"$auth\"')' | runmqsc $qmgr\"; done; done"
+    regex       : "AUTHTYPE\\(IDPWLDAP\\).*SECCOMM\\(YES\\)"
+    solution    :
+    "Specify LDAP as the authentication method for each queue manager.
+
+    To access the MQ Appliance CLI, enter:
+    mqcli
+
+    runmqsc [queue manager name]
+
+    DEFINE AUTHINFO('[Object name e.g., USE.LDAP]') 
+    AUTHTYPE(IDPWLDAP) 
+    CONNAME('[ldap1(port),ldap2(port),ldap3(port)]') 
+    SECCOMM(YES) [Ensures encryption is used]
+    SHORTUSR('[short user name]') 
+    CHCKCLNT(REQUIRED) 
+    BASEDNU('base user DN') 
+    REPLACE
+
+    ALTER QMGR CONNAUTH('[AUTHINFO object name]')
+    REFRESH SECURITY TYPE(CONNAUTH)
+
+    Type "end" to exit runmqsc mode."
+    severity    : MEDIUM
+  </custom_item>
+  
+  <custom_item>
+    description : "MQMH-AS-001080: The MQ Appliance must disable identifiers (individuals, groups, roles, and devices) after 35 days of inactivity."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F \"[()]\" '/QMNAME/ {print \$2}' | xargs -I {} sh -c \"mqcli -c \\\"echo 'DIS QMGR CONNAUTH' | runmqsc {}\\\" | grep -E 'CONNAUTH\\\\\\\\(([^)]+)\\\\\\\\)' | sed -E 's/.*CONNAUTH\\\\\\\\(([^)]+)\\\\\\\\).*/\\\\1/' | xargs -I % mqcli -c \\\"echo 'DIS AUTHINFO(%)' | runmqsc {}\\\"\""
+    regex       : "AUTHTYPE\\(IDPWLDAP\\)"
+    solution    :
+    "Specify LDAP as the authentication method for each queue manager.
+
+    To access the MQ Appliance CLI, enter:
+    mqcli
+
+    runmqsc [queue manager name]
+
+    DEFINE AUTHINFO('[Object name e.g., USE.LDAP]') 
+    AUTHTYPE(IDPWLDAP) 
+    CONNAME('[ldap1(port),ldap2(port),ldap3(port)]') 
+    SECCOMM(YES) [Ensures encryption is used]
+    SHORTUSR('[short user name]') 
+    CHCKCLNT(REQUIRED) 
+    BASEDNU('base user DN') 
+    REPLACE
+
+    ALTER QMGR CONNAUTH('[AUTHINFO object name]')
+    REFRESH SECURITY TYPE(CONNAUTH)
+
+    Type "end" to exit runmqsc mode."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001090: The MQ Appliance messaging server must use an enterprise user management system to uniquely identify and authenticate users (or processes acting on behalf of organizational users)."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F \"[()]\" '/QMNAME/ {print $2}' | xargs -I {} mqcli -c \"echo 'DIS AUTHINFO(USE.LDAP)' | runmqsc {}\""
+    regex       : "AUTHINFO\\(USE.LDAP\\)"
+    solution    :
+    "Specify LDAP as the authentication method for each queue manager.
+
+    To access the MQ Appliance CLI, enter:
+    mqcli
+
+    runmqsc [queue manager name]
+
+    DEFINE AUTHINFO(USE.LDAP) 
+    AUTHTYPE(CRLLDAP) 
+    CONNAME('[host name1(port)],[host name1(port)]') 
+
+    ALTER QMGR CONNAUTH('USE.LDAP')
+    REFRESH SECURITY TYPE(CONNAUTH)
+
+    Enter "end" to exit runmqsc mode."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001110: The MQ Appliance messaging server must generate log records for access and authentication events."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F \"[()]\" '/QMNAME/ {print $2}' | xargs -I {} mqcli -c \"echo 'DIS QMGR EVENT' | runmqsc {}\""
+    regex       : "AUTHOREV\\(ENABLED\\)|STRSTPEV\\(ENABLED\\)|CMDEV\\(ENABLED\\)|CONFIGEV\\(ENABLED\\)|CHLEV\\(ENABLED\\)"
+    solution    :
+    "The following events may be logged for each queue manager on the MQ Appliance:
+
+    Authority (AUTHOREV), Inhibit (INHIBITEV), Local (LOCALEV), Remote (REMOTEEV), Start and stop (STRSTPEV), Performance (PERFMEV), Command (CMDEV), Channel (CHLEV), Channel auto definition (CHADEV), SSL (SSLEV), Configuration (CONFIGEV)
+
+    To enable logging for a queue manager, enter the following from the MQ Appliance CLI for each event for which you wish to enable logging:
+
+    To access the MQ Appliance CLI, enter the following:
+    mqcli 
+
+    runmqsc [queue mgr name]
+    ALTER QMGR [event name](ENABLED)
+    end
+
+    Note: Any MQ monitoring solution that connects to MQ as a client may be used to monitor event queues."
+    severity    : MEDIUM
+  </custom_item>
+# Need to check if there is a desired cipher spec
+  <custom_item>
+    description : "MQMH-AS-001120: The MQ Appliance messaging server must ensure authentication of both SSH client and server during the entire session."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F \"[()]\" '/QMNAME/ {print $2}' | while read qmgr; do for chl in $(mqcli -c \"echo 'DIS CHANNEL(*) CHLTYPE(SVRCONN)' | runmqsc $qmgr\" | awk -F '[()]' '/CHANNEL/ {print $2}'); do mqcli -c \"echo \\\"DIS CHANNEL($chl)\\\" | runmqsc $qmgr\"; done; done"
+    regex       : "SSLCIPH\\(.*\\).*SSLAUTH\\(REQUIRED\\)"
+    solution    :
+    "The following events may be logged for each queue manager on the MQ Appliance:
+
+    Authority (AUTHOREV), Inhibit (INHIBITEV), Local (LOCALEV), Remote (REMOTEEV), Start and stop (STRSTPEV), Performance (PERFMEV), Command (CMDEV), Channel (CHLEV), Channel auto definition (CHADEV), SSL (SSLEV), Configuration (CONFIGEV)
+
+    To enable logging for a queue manager, enter the following from the MQ Appliance CLI for each event for which you wish to enable logging:
+
+    To access the MQ Appliance CLI, enter the following:
+    mqcli 
+
+    runmqsc [queue mgr name]
+    ALTER QMGR [event name](ENABLED)
+    end
+
+    Note: Any MQ monitoring solution that connects to MQ as a client may be used to monitor event queues."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001150: The MQ Appliance messaging server must generate a unique session identifier using a FIPS 140-2 approved random number generator."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F \"[()]\" '/QMNAME/ {print \$2}' | while read qmgr; do mqcli -c \"echo 'DIS CHANNEL(*) CHLTYPE(SVRCONN)' | runmqsc \$qmgr\"; done"
+    regex       : "SSLCIPH\\(.*\\).*SSLAUTH\\(REQUIRED\\)"
+    solution    :
+    "The most common way devices (endpoints) may connect an MQ Appliance MQ queue manager is as an MQ client. In order to ensure unique identification of network-connected devices, mutual authentication using CA-signed TLS certificates should be configured. 
+
+    1. Prepare the key repository on each endpoint client.
+    2. Request a CA-signed certificate for each client. You might use different CAs for the two endpoints.
+    3. Add the Certificate Authority certificate to the key repository for each client. If the endpoints are using different Certificate Authorities then the CA certificate for each Certificate Authority must be added to both key repositories.
+    4. Add the CA-signed certificate to the key repository for each endpoint.
+
+    On the MQ Appliance queue manager, define a server-connection channel by issuing a command as in the following example:
+
+    [C1]=Client, [QM1]=MQ Appliance queue manager. Replace [QM1] with the actual queue manager name (e.g., FINANCEQM)
+
+    To access the MQ Appliance CLI, enter:
+    mqcli
+
+    runmqsc [QM1]
+    DEFINE CHANNEL([C1].TO.[QM1]) CHLTYPE(SVRCONN) TRPTYPE(TCP) +
+    SSLCIPH([TLS_RSA_WITH_AES_128_CBC_SHA or other cipher spec]) SSLCAUTH(REQUIRED) +
+    DESCR('Receiver channel using TLS from [client name] to [QM name]')
+    end
+
+    Note: Following are the cipher specs available for MQ: https://ibm.biz/BdrJGp"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001160: The MQ Appliance messaging server must authenticate all network-connected endpoint devices before establishing any connection."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F \"[()]\" '/QMNAME/ {print \$2}' | while read qmgr; do mqcli -c \"echo 'DIS CHANNEL(*) CHLTYPE(SVRCONN)' | runmqsc \$qmgr\"; done"
+    regex       : "SSLCIPH\\(.*\\).*SSLAUTH\\(REQUIRED\\)"
+    solution    :
+    "The most common way devices (endpoints) may connect an MQ Appliance MQ queue manager is as an MQ client. In order to ensure unique identification of network-connected devices, mutual authentication using CA-signed TLS certificates should be configured. 
+
+    1. Prepare the key repository on each endpoint client.
+    2. Request a CA-signed certificate for each client. You might use different CAs for the two endpoints.
+    3. Add the Certificate Authority certificate to the key repository for each client. If the endpoints are using different Certificate Authorities then the CA certificate for each Certificate Authority must be added to both key repositories.
+    4. Add the CA-signed certificate to the key repository for each endpoint.
+
+    On the MQ Appliance queue manager, define a server-connection channel by issuing a command as in the following example:
+
+    [C1]=Client, [QM1]=MQ Appliance queue manager. Replace [QM1] with the actual queue manager name (e.g., FINANCEQM)
+
+    To access the MQ Appliance CLI, enter:
+    mqcli
+
+    runmqsc [QM1]
+
+    Replace the brackets "[ ]" with a selected parameter:
+    DEFINE CHANNEL([C1].TO.[QM1]) CHLTYPE(SVRCONN) TRPTYPE(TCP) +
+    SSLCIPH([TLS_RSA_WITH_AES_128_CBC_SHA or other cipher spec]) SSLCAUTH(REQUIRED) +
+    DESCR('Receiver channel using TLS from [client name] to [QM name]')
+
+    For example:
+    ALTER CHANNEL(C1.TO.QM1) CHLTYPE(SVRCONN) TRPTYPE(TCP) +
+    SSLCIPH(TLS_RSA_WITH_AES_128_CBC_SHA) SSLCAUTH(REQUIRED) +
+    DESCR('Receiver channel using TLS from C1 to QM1')"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001170: The MQ Appliance messaging server must authenticate all endpoint devices before establishing a local, remote, and/or network connection using bidirectional authentication that is cryptographically based."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F \"[()]\" '/QMNAME/ {print \$2}' | while read qmgr; do mqcli -c \"echo 'DIS CHANNEL(*) CHLTYPE(SVRCONN)' | runmqsc \$qmgr\"; done"
+    regex       : "SSLCIPH\\(.*\\).*SSLAUTH\\(REQUIRED\\)"
+    solution    :
+    "1. Prepare the key repository on each endpoint client.
+    2. Request a CA-signed certificate for each client. You might use different CAs for the two endpoints.
+    3. Add the Certificate Authority certificate to the key repository for each client. If the endpoints are using different Certificate Authorities then the CA certificate for each Certificate Authority must be added to both key repositories.
+    4. Add the CA-signed certificate to the key repository for each endpoint.
+
+    On the MQ Appliance queue manager, define a server-connection channel by issuing a command as in the following example:
+
+    [C1]=Client, [QM1]=MQ Appliance queue manager. Replace [QM1] with the actual queue manager name (e.g., FINANCEQM)
+
+    To access the MQ Appliance CLI, enter:
+    mqcli
+
+    runmqsc [QM1]
+
+    Replace the brackets "[ ]" with a selected parameter:
+    DEFINE CHANNEL([C1].TO.[QM1]) CHLTYPE(SVRCONN) TRPTYPE(TCP) +
+    SSLCIPH([TLS_RSA_WITH_AES_128_CBC_SHA or other cipher spec]) SSLCAUTH(REQUIRED) +
+    DESCR('Receiver channel using TLS from [client name] to [QM name]')
+
+    For example:
+    ALTER CHANNEL(C1.TO.QM1) CHLTYPE(SVRCONN) TRPTYPE(TCP) +
+    SSLCIPH(TLS_RSA_WITH_AES_128_CBC_SHA) SSLCAUTH(REQUIRED) +
+    DESCR('Receiver channel using TLS from C1 to QM1')"
+    severity    : HIGH
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001180: MQ Appliance messaging servers must use NIST-approved or NSA-approved key management technology and processes."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F \"[()]\" '/QMNAME/ {print \$2}' | while read qmgr; do mqcli -c \"echo 'DIS CHANNEL(*) CHLTYPE(SVRCONN)' | runmqsc \$qmgr\"; done"
+    regex       : "SSLCIPH\\(.*\\).*SSLAUTH\\(REQUIRED\\)"
+    solution    :
+    "1. Prepare the key repository on each endpoint client.
+    2. Request a CA-signed certificate for each client. You might use different CAs for the two endpoints.
+    3. Add the Certificate Authority certificate to the key repository for each client. If the endpoints are using different Certificate Authorities then the CA certificate for each Certificate Authority must be added to both key repositories.
+    4. Add the CA-signed certificate to the key repository for each endpoint.
+
+    On the MQ Appliance queue manager, define a server-connection channel by issuing a command as in the following example:
+
+    [C1]=Client, [QM1]=MQ Appliance queue manager. Replace [QM1] with the actual queue manager name (e.g., FINANCEQM)
+
+    To access the MQ Appliance CLI, enter:
+    mqcli
+
+    runmqsc [QM1]
+
+    DEFINE CHANNEL([C1].TO.[QM1]) CHLTYPE(SVRCONN) TRPTYPE(TCP) 
+    SSLCIPH([TLS_RSA_WITH_AES_128_CBC_SHA or other cipher spec]) SSLCAUTH(REQUIRED) 
+    DESCR('Receiver channel using TLS from [client name] to [QM name]')
+    end"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001200: The MQ Appliance messaging server must utilize FIPS 140-2 approved encryption modules when authenticating users and processes."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F \"[()]\" '/QMNAME/ {print $2}' | while read qmgr; do mqcli -c \"echo 'DIS QMGR SSLFIPS' | runmqsc $qmgr\"; done"
+    regex       : "SSLFIPS\\(YES\\)"
+    solution    :
+    "To access the MQ Appliance CLI, for each queue manager, enter:
+    mqcli
+
+    runmqsc [queue manager name]
+    ALTER QMGR SSLFIPS(YES)
+    end"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "TMQMH-AS-001230: The MQ Appliance messaging server must protect the confidentiality and integrity of transmitted information through the use of an approved TLS version."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F \"[()]\" '/QMNAME/ {print $2}' | while read qmgr; do mqcli -c \"echo 'DIS QMGR SSLFIPS' | runmqsc $qmgr\"; done"
+    regex       : "SSLFIPS\\(YES\\)"
+    solution    :
+    "To access the MQ Appliance CLI, for each queue manager, enter:
+    mqcli
+
+    runmqsc [queue manager name]
+    ALTER QMGR SSLFIPS(YES)
+    end"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001240: The MQ Appliance messaging server must remove all export ciphers to protect the confidentiality and integrity of transmitted information."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F \"[()]\" '/QMNAME/ {print $2}' | while read qmgr; do mqcli -c \"echo 'DIS QMGR SSLFIPS' | runmqsc $qmgr\"; done"
+    regex      : "SSLFIPS\\(YES\\)"
+    solution    :
+    "To access the MQ Appliance CLI, for each queue manager, enter:
+    mqcli
+
+    runmqsc [queue manager name]
+    ALTER QMGR SSLFIPS(YES)
+    end"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001250: The MQ Appliance messaging server must employ approved cryptographic mechanisms to prevent unauthorized disclosure of information and/or detect changes to information during transmission."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq' | awk -F \"[()]\" '/QMNAME/ {print $2}' | while read qmgr; do mqcli -c \"echo 'DIS QMGR SSLFIPS' | runmqsc $qmgr\"; done"
+    regex       : "SSLFIPS\\(YES\\)"
+    solution    :
+    "To access the MQ Appliance CLI, for each queue manager, enter:
+    mqcli
+
+    runmqsc [queue manager name]
+    ALTER QMGR SSLFIPS(YES)
+    end"
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001260: The MQ Appliance messaging server must provide a clustering capability."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq -s -o ha'"
+    regex       : "HA\\((Primary|Secondary)\\)"
+    solution    :
+    "To configure HA:
+    1. Use three Ethernet cables to directly connect two appliances together using ports eth1, eth2, and eth3.
+    2. Configure the three connected MQ Appliance ports (on both appliances) as follows:
+
+    Interface Purpose IP address/CIDR
+    eth1 HA group primary interface x.x.x.x/24
+    eth2 HA group alternative interface x.x.x.x/24
+    eth3 HA Replication interface x.x.x.x/24
+
+    On the second appliance, enter the following command from the MQ Appliance CLI:
+    prepareha -s [SecretText] -a [eth 1 IPAddress of first appliance] [-t timeout]
+
+    On the first appliance, enter the following command:
+    crthagrp -s [SecretText] -a [eth 1 IPAddress of second appliance]
+    crtmqm [HA QM name] –p [port] –sx
+
+    Note: The queue manager’s data (queues, queue messages, etc.) is replicated from the appliance in the primary HA role (first appliance) to the appliance in the secondary HA role (second appliance)."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001300: The MQ Appliance messaging server must provide centralized management and configuration of the content to be captured in log records generated by all application components."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq -s -o ha'"
+    regex       : "HA\\((Primary|Secondary)\\)"
+    solution    :
+    "To configure HA:
+    1. Use three Ethernet cables to directly connect two appliances together using ports eth1, eth2, and eth3.
+    2. Configure the three connected MQ Appliance ports (on both appliances) as follows:
+
+    Interface      Purpose                          IP address/CIDR
+    eth1           HA group primary interface       x.x.x.x/24
+    eth2           HA group alternative interface   x.x.x.x/24
+    eth3           HA Replication interface         x.x.x.x/24
+
+    On the second appliance, enter the following command from the MQ Appliance CLI:
+    prepareha -s [SecretText] -a [eth 1 IPAddress of first appliance] [-t timeout]
+
+    On the first appliance, enter the following command:
+    crthagrp -s [SecretText] -a [eth 1 IPAddress of second appliance]
+
+    On the first appliance, stop the queue manager to be HA-enabled:
+    endmqm [name of queue manager]  
+    sethagrp -i [name of queue manager]
+
+    Note: The queue manager’s data (queues, queue messages, etc.) are replicated from the appliance in the primary HA role (first appliance) to the appliance in the secondary HA role (second appliance)."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001310: The MQ Appliance messaging server must, at a minimum, transfer the logs of interconnected systems in real time, and transfer the logs of standalone systems weekly."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq -s -o ha'"
+    regex       : "HA\\((Primary|Secondary)\\)"
+    solution    :
+    "To configure HA:
+    1. Use three Ethernet cables to directly connect two appliances together using ports eth1, eth2, and eth3.
+    2. Configure the three connected MQ Appliance ports (on both appliances) as follows:
+
+    Interface  Purpose                                                 IP address/CIDR
+    eth1           HA group primary interface          x.x.x.x/24
+    eth2           HA group alternative interface   x.x.x.x/24
+    eth3           HA Replication interface               x.x.x.x/24
+
+    On the second appliance, enter the following command from the MQ Appliance CLI:
+    prepareha -s [SecretText] -a [eth 1 IPAddress of first appliance] [-t timeout]
+
+    On the first appliance, enter the following command:
+    crthagrp -s [SecretText] -a [eth 1 IPAddress of second appliance]
+    crtmqm [HA QM name] –p [port] –sx
+
+    Note: The queue manager’s data (queues, queue messages, etc.) is replicated from the appliance in the primary HA role (first appliance) to the appliance in the secondary HA role (second appliance)."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001320: The MQ Appliance messaging server must use encryption strength in accordance with the categorization of the management data during remote access management sessions."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'config; crypto; show crypto-mode'"
+    regex       : "crypto-mode\\s*:\\s*(?!permissive).+"
+    solution    :
+    "To set management access to the highest encryption strength, enable FIPS 140-2 Level 1 mode at the next reload of the firmware.
+    Enter the following commands:
+    config
+    crypto
+    crypto-mode-set fips-140-2-l1
+    Press Enter
+
+    The following message will appear: Crypto Mode Successfully set to fips-140-2-l1 for next boot."
+    severity    : MEDIUM
+  </custom_item>
+
+  <custom_item>
+    description : "MQMH-AS-001330: The MQ Appliance messaging server, when categorized as a high level system, must be in a high-availability (HA) cluster."
+    type        : CMD_EXEC
+    cmd         : "mqcli -c 'dspmq -s -o ha'"
+    regex       : "HA\\(Replicated\\)"
+    solution    :
+    "To configure HA:
+    1. Use three Ethernet cables to directly connect two appliances together using ports eth1, eth2, and eth3.
+    2. Configure the three connected MQ Appliance ports (on both appliances) as follows:
+
+    Interface      Purpose                          IP address/CIDR
+    eth1           HA group primary interface       x.x.x.x/24
+    eth2           HA group alternative interface   x.x.x.x/24
+    eth3           HA Replication interface         x.x.x.x/24
+
+    On the second appliance, enter the following command from the MQ Appliance CLI:
+    prepareha -s [SecretText] -a [eth 1 IPAddress of first appliance] [-t timeout]
+
+    On the first appliance, enter the following command:
+    crthagrp -s [SecretText] -a [eth 1 IPAddress of second appliance]
+
+    On the first appliance, stop the first queue manager to be HA enabled:
+    endmqm [name of queue manager]
+
+    Set an HA group:
+    sethagrp -i [name of queue manager]"
+    severity    : MEDIUM
+  </custom_item>
+</check_type>
+
+# Blue - WebGUI but included
+# Green - Included and cleared. Plus red means hard problems
+# Black - Excluded
