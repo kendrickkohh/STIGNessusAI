@@ -1,35 +1,3 @@
-#TRUSTED 92a2145741e9620e6830524ada674b82791b691e1a1a1cc925aa24999f57a07eeb598dda4b028b69dbb1e35041e72053dea8bd585f5930c85b73aaebe3d05a77fbbaa1376974b9ed40c66b18a79eb9fcb511e427dc87a4c9f2ab47f8a108b5e34a3bb79f7254d869d01b1f7735933d0611dcbb77a1785e8252f3a75c2de1dab2600a2b26ff4b9fcd418f6a57013acfdae0560622571cb9e2674a5f6830dc65cb58ce634bc51dac2734a66f7a0f5d76be968a4725a65c68d2292291fb22f7d21fe1883846c70273324a6e74c670cd93aee77f4694af8618ce0619ea0b8004914fc99ed1b74c2bed698a4fc1891f9e6898883a0b3fb2e2f00a6522e9ac5b38ac473dc0d6b9a69eff1e08e87c18537f57037fcc4b0e0934ab59c42226057d43afc6fd8fd6a9e930c606b825a432a1cfeeaa9f441b3ebedbc950375bba8fcbc865551b8c42da2907d398cc95099d69b24c195318cfa2f05c7d1935dbe51e45f40044d5e6c24ad8e22c71c79767f5d7c11a8aad7d40de874fcd54b627236d0450380d0047e4fe483a701fbec066c3f011acd052c94290729f16f2c55fa528e24c7f190b728f40ca698bb3c6a5203702edbc7d6babe6ee7aa000b31163ba9456bcb9c4d130a097388c62cb40262e1fe4054c81d02f7605d8730a320411bc199295c8dd747eb513c1f67406d9f68d5886998b0df88547edc100d7a6b019e9636180c19b
-#TRUST-RSA-SHA256 63f56b482c47c87571ac670911490cbe83a17f966e3f4b8d54852a26ddbc2173f58a80d5f35bf846f6313514fe366d3f56b47de52ff4c694db4244b72f9c5dbf040298d4e8e38243d4a5b256bb8ca199339da0b74dfc011a1b74131a2117f2cd0a27855f04b2b426b7383b73d02a1d6ffecb986e63fd917d81c17cc0a6014766720e8e7758ce3f514262b0b8aa5f7cd5375304d494bf10c83aa4fac6c75a14df18802a9ae23bd867af3715aa50ec52c02506f72e34bba9097c0ae4246d23bba2bbfcaf137f1006158933ef45f444ca33bce40f8b9eaa8b54c6509589504af6e5fda1849403f88416605b7e4f4bbc500dbcda61e5338be4083d925b18583f7c4be541ba6693ad148690c4e7c634c66b596c588c9cf766184120db40a96d36f14194b70e2524b6ba83500e823db90083c113d8880bebba4bb2d3b59360e932b2238e9294ce8fb790c0aae7195c38082f7546747acff2d28703232765590e3fbf66692c7845d80e59542d55dab32811b420d3df7acd841e26b6dab2e4b87d71efdfb74e8317ac1eb0180d2af89250f866ca3824e91809ab6df79e79aff28c1ece7845872018f0e6a4d05acdd8add4467fa6ebcae271bd94982554e50a144af72062f8d15eb099eb32b460c82889cce7564ae68d1169ee47dd6916e6b13a5024be02ffa06366c98fea9cd7157046cce2e47c267693bb997c99afa874e0b668bf674d
-#
-# This script is Copyright (C) 2004-2025 and is owned by Tenable, Inc. or an Affiliate thereof.
-#
-# This script is released under the Tenable Subscription License and
-# may not be used from within scripts released under another license
-# without authorization from Tenable, Inc.
-#
-# See the following licenses for details:
-#
-# http://static.tenable.com/prod_docs/Nessus_6_SLA_and_Subscription_Agreement.pdf
-#
-# @PROFESSIONALFEED@
-# $Revision: 1.6 $
-# $Date: 2025/03/31 $
-#
-# description : This .audit is designed against the CIS Ubuntu Linux 24.04 LTS Benchmark 1.0.0
-#
-#<ui_metadata>
-#<display_name>CIS Ubuntu Linux 24.04 LTS v1.0.0 L1 Server</display_name>
-#<spec>
-#  <type>CIS</type>
-#  <name>Ubuntu Linux 24.04 LTS</name>
-#  <profile>L1 Server</profile>
-#  <version>1.0.0</version>
-#  <link>https://workbench.cisecurity.org/benchmarks/18959</link>
-#</spec>
-#<labels>cis,ubuntu_linux_24.04,agent</labels>
-#<benchmark_refs>CSCv6,CSCv7,CSCv8,LEVEL</benchmark_refs>
-#</ui_metadata>
-
 <check_type:"Unix">
   # Print output, manual review
   <custom_item>

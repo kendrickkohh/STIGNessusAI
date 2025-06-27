@@ -5,6 +5,7 @@ from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_community.document_loaders import TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 import os
+import re
 
 # Load audit files
 def load_audit_files(audit_dir):
@@ -50,9 +51,23 @@ def split_documents_audit(documents: list[Document]):
     text_splitter = RecursiveCharacterTextSplitter(
         chunk_size=1000000,  # Disable chunk size
         chunk_overlap=0,
-        separators=["  </custom_item>"],  # only split on end of custom items
+        separators=["</custom_item>"]  # only split on end of custom items
     )
     return text_splitter.split_documents(documents)
+
+def regex_split_custom_items(docs: list[Document]) -> list[Document]:
+    custom_item_pattern = r"<custom_item>.*?</custom_item>"
+    split_docs = []
+
+    for doc in docs:
+        matches = re.findall(custom_item_pattern, doc.page_content, flags=re.DOTALL)
+        for i, match in enumerate(matches):
+            split_docs.append(Document(
+                page_content=match.strip(),
+                metadata={**doc.metadata, "split_index": i}
+            ))
+
+    return split_docs
 
 # Add chunks to chromaDB
 def add_to_chroma(chunks: list[Document]):
@@ -78,15 +93,15 @@ def add_to_chroma(chunks: list[Document]):
     if len(new_chunks):
         print(f"👉 Adding new documents: {len(new_chunks)}")
         new_chunk_ids = [chunk.metadata["id"] for chunk in new_chunks] # Adding IDs with the chunks
-        for i in range(0, len(new_chunks), 100):
-            print(new_chunks[i])
-            
-            batch = new_chunks[i:i+100]
-            batch_ids = new_chunk_ids[i:i+100]
-            db.add_documents(batch, ids=batch_ids)
-            print(f"batch:{i} added")
 
-        # db.add_documents(new_chunks, ids=new_chunk_ids)
+        # For adding documents 100 at a time
+        # for i in range(0, len(new_chunks), 100):            
+        #     batch = new_chunks[i:i+100]
+        #     batch_ids = new_chunk_ids[i:i+100]
+        #     db.add_documents(batch, ids=batch_ids)
+        #     print(f"batch:{i} added")
+
+        db.add_documents(new_chunks, ids=new_chunk_ids)
         db.persist()
     else:
         print("✅ No new documents to add")
@@ -121,12 +136,14 @@ def main():
     # Load PDFs and audits separately
     pdf_docs, audit_docs = load_documents()
     
-    # Split PDFs with standard splitter and audit files with audit splitter
+    # Split PDFs with standard splitter 
     # chunks_pdf = split_documents(pdf_docs)
     chunks_pdf = split_documents_by_page(pdf_docs)
 
-    chunks_audit = split_documents_audit(audit_docs)
-    
+    # Split audit files with audit splitter
+    # chunks_audit = split_documents_audit(audit_docs)
+    chunks_audit = regex_split_custom_items(audit_docs)
+
     # Combine all chunks
     # all_chunks = chunks_pdf + chunks_audit
 

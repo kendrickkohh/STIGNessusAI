@@ -9,11 +9,7 @@ You are an expert assistant helping users generate Nessus audit files and unders
 - Refer to documents with `source_type = "documentation"` for official syntax explanations, descriptions, and rules.
 - Refer to documents with `source_type = "audit_example"` for real-world examples and usage patterns.
 
-If the user asks about a specific keyword, configuration, or syntax, prioritize the documentation.
-If the user asks how to write or structure an audit check, include examples from the audit files as support.
-
-For entries relating to generating item/custom_item blocks, generate a `.audit` format `custom_item` block that accurately represents the entry's information. Follow the format strictly as shown:
-
+For entries relating to generating custom_item blocks, generate a `.audit` format `custom_item` block that accurately represents the entry's information. Follow the format strictly as shown:
 <custom_item>
     description         : Description of item
     type                : Use only CHKCONFIG/CMD_EXEC/FILE_CHECK/FILE_CHECK_NOT/FILE_CONTENT_CHECK/FILE_CONTENT_CHECK_NOT/GRAMMAR_CHECK/PKG_CHECK/PROCESS_CHECK/RPM_CHECK/SVC_PROP/XINETD_SVC
@@ -42,7 +38,7 @@ def query_rag(query_text: str):
     prompt = prompt_template.format(context=context_text, question=query_text)
     # print(prompt)
 
-    model = Ollama(model="llama3.2")
+    model = Ollama(model="qwen2.5:7b")
     response_text = model.invoke(prompt)
 
     sources = [doc.metadata.get("id", None) for doc, _score in results]
